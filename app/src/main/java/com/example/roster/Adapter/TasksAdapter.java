@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.roster.AddNewTask;
@@ -28,6 +29,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.ViewHolder> 
         this.db = db;
     }
 
+    @NonNull
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.task_layout, parent, false);
@@ -35,6 +38,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.ViewHolder> 
         return new ViewHolder(itemView);
     }
 
+    @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         db.openDatabase();
         TasksModel item = taskList.get(position);
@@ -53,6 +57,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.ViewHolder> 
         });
     }
 
+    @Override
     public int getItemCount() {
         return taskList.size();
     }
@@ -68,6 +73,13 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.ViewHolder> 
 
     public Context getContext(){
         return activity;
+    }
+
+    public void deleteItem(int position) {
+        TasksModel item = taskList.get(position);
+        db.deleteTask(item.getId());
+        taskList.remove(position);
+        notifyItemRemoved(position);
     }
 
 

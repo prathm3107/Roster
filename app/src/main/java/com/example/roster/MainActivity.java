@@ -1,6 +1,7 @@
 package com.example.roster;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements DialogCloseListener{
     private RecyclerView tasksRecyclerView;
@@ -29,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements DialogCloseListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         db = new DatabaseHandler(this);
         db.openDatabase();
@@ -38,14 +40,21 @@ public class MainActivity extends AppCompatActivity implements DialogCloseListen
 
         tasksRecyclerView = findViewById(R.id.tasksRecyclerView);
         tasksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        tasksAdapter = new TasksAdapter(db, this);
+        tasksAdapter = new TasksAdapter(db, MainActivity.this);
         tasksRecyclerView.setAdapter(tasksAdapter);
+
+        ItemTouchHelper itemTouchHelper;
+        itemTouchHelper = new
+                ItemTouchHelper(new RecyclerItemTouchHelper(tasksAdapter));
+        itemTouchHelper.attachToRecyclerView(tasksRecyclerView);
 
         fab = findViewById(R.id.addTasks);
 
         tasklist = db.getAllTasks();
         Collections.reverse(tasklist);
+
         tasksAdapter.setTasks(tasklist);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements DialogCloseListen
     public void handleDialogClose(DialogInterface dialog) {
         tasklist = db.getAllTasks();
         Collections.reverse(tasklist);
+        tasksAdapter.setTasks(tasklist);
         tasksAdapter.notifyDataSetChanged();
     }
 }
